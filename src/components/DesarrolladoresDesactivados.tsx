@@ -2,11 +2,8 @@ import { useState } from 'react';
 import '../index.css';
 import ModalCrearDesarrollador from './ModalCrearDesarrollador';
 import { Button } from "@/components/ui/button"
-import { useNavigate } from 'react-router-dom';
 
-const Desarrolladores = () => {
-
-    const navigate = useNavigate();
+const DesarrolladoresDesactivados = () => {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -46,21 +43,14 @@ const Desarrolladores = () => {
     return (
         <div className="p-6">
             <h1 className="text-2xl font-bold mb-4 text-center text-blue-600">Desarrolladores</h1>
-            <p className="mb-6 text-center text-gray-700">Listado de Desarrolladores</p>
+            <p className="mb-6 text-center text-gray-700">Listado de Desarrolladores Desactivados</p>
 
-            <div className="mb-4 text-center flex justify-center gap-4">
+            <div className="mb-4 text-center">
                 <Button
                     onClick={() => setIsModalOpen(true)}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
                 >
                     Crear Desarrollador
-                </Button>
-
-                <Button
-                    onClick={() => navigate('/desarrolladores_desactivados')}
-                    className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
-                >
-                    Ver Desarrolladores Desactivados
                 </Button>
             </div>
 
@@ -99,7 +89,7 @@ const Desarrolladores = () => {
                                         Eliminar
                                     </button>
                                     <button className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm">
-                                        Desactivar
+                                        Reactivar
                                     </button>
                                     <button className="bg-indigo-500 text-white px-3 py-1 rounded hover:bg-indigo-600 text-sm">
                                         Asignar a proyecto
@@ -118,4 +108,4 @@ const Desarrolladores = () => {
     );
 };
 
-export default Desarrolladores;
+export default DesarrolladoresDesactivados;
