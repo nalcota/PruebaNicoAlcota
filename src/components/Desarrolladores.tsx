@@ -1,64 +1,115 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import '../index.css';
 import ModalCrearDesarrollador from './ModalCrearDesarrollador';
 import { Button } from "@/components/ui/button"
 import { useNavigate } from 'react-router-dom';
+import { useDesarrolladoresQuery } from '../api/useDesarrolladoresQuery';
+import axios from 'axios';
+import Swal from 'sweetalert2';
+import ModalAsignarProyectos from './ModalAsignarProyectos';
+import { useProyectosPorDesarrolladorStore } from '@/store/useProyectosPorDesarrolladorStore';
+import { useProyectosPorDesarrolladorQuery } from '../api/useProyectosPorDesarrollador'; // Asegúrate de que la ruta sea la correcta
+
 
 const Desarrolladores = () => {
 
     const navigate = useNavigate();
-
+    const { data: desarrolladoresData, isLoading: isLoadingDesarrolladores, error: errorDesarrolladores, refetch } = useDesarrolladoresQuery(); const [selectedDesarrollador, setSelectedDesarrollador] = useState<any>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalAbierto, setModalAbierto] = useState(false);
+    const { data: proyectosData, isLoading: isLoadingProyectos, error: errorProyectos } = useProyectosPorDesarrolladorQuery();
+    const [proyectosAsignados, setProyectosAsignados] = useState<number[]>([]);
 
-    const data = [
-        {
-            id: 1,
-            nombre: 'Ana Pérez',
-            rut: '12.345.678-9',
-            correo: 'ana.perez@example.com',
-            fechaContratacion: '2021-05-12',
-            añosExperiencia: 5,
-            proyectosAsignados: 3,
-            estado: 'Activo'
-        },
-        {
-            id: 2,
-            nombre: 'Luis González',
-            rut: '98.765.432-1',
-            correo: 'luis.gonzalez@example.com',
-            fechaContratacion: '2019-08-20',
-            añosExperiencia: 6,
-            proyectosAsignados: 2,
-            estado: 'Inactivo'
-        },
-        {
-            id: 3,
-            nombre: 'Sofía Rodríguez',
-            rut: '23.456.789-0',
-            correo: 'sofia.rodriguez@example.com',
-            fechaContratacion: '2020-03-15',
-            añosExperiencia: 4,
-            proyectosAsignados: 5,
-            estado: 'Activo'
-        },
-    ];
+
+
+    if (errorDesarrolladores || errorProyectos) {
+        return <div>Error: {errorDesarrolladores?.message || errorProyectos?.message}</div>;
+    }
+    useEffect(() => {
+        if (proyectosData) {
+            console.log('Proyectos por desarrollador:', proyectosData);
+        }
+    }, [proyectosData]);
+    const handleGuardarAsignaciones = (idsSeleccionados: number[]) => {
+        setProyectosAsignados(idsSeleccionados);
+        console.log('Proyectos asignados:', idsSeleccionados);
+    };
+
+    const handleResetDeveloperData = () => {
+        setSelectedDesarrollador(null); // Restablecer los datos cuando se cancele o se actualice
+    };
+
+    if (isLoadingDesarrolladores) return <div className="text-center mt-10">Cargando...</div>;
+    if (errorDesarrolladores) return <div className="text-center mt-10 text-red-500">Error al cargar datos</div>;
+
+
+    const handleSubmit = (data: any) => {
+        console.log("Desarrollador creado:", data);
+        refetch();
+    };
+
+    const eliminarDesarrollador = async (codigoDesarrollador: string) => {
+        const resultado = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: 'Esta acción eliminará al desarrollador permanentemente.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+        });
+
+        if (resultado.isConfirmed) {
+            try {
+                await axios.delete(`https://apipruebas.rbu.cl/api/desarrolladores/${codigoDesarrollador}`, {
+                    headers: {
+                        Authorization: `Bearer T7fZ9gHj5KmN2pQr8sV3uW6xY1zA4bC0dE7fG9hJ2kL4mN6pQ8rS0tV3wX5yZ7aC9`
+                    }
+                });
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Eliminado',
+                    text: 'El desarrollador ha sido eliminado correctamente.',
+                    timer: 2000,
+                    showConfirmButton: false,
+                });
+                refetch();
+
+            } catch (error) {
+                console.error("Error al eliminar desarrollador:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Hubo un problema al eliminar el desarrollador.',
+                });
+            }
+        }
+    };
+
+    const handleEdit = (dev: any) => {
+        setSelectedDesarrollador(dev); 
+        setIsModalOpen(true); // Abrir el modal
+    };
+
 
     return (
         <div className="p-6">
             <h1 className="text-2xl font-bold mb-4 text-center text-blue-600">Desarrolladores</h1>
-            <p className="mb-6 text-center text-gray-700">Listado de Desarrolladores</p>
+            <p className="mb-6 text-center text-gray-700">Listado de Desarrolladores Activos</p>
 
             <div className="mb-4 text-center flex justify-center gap-4">
                 <Button
                     onClick={() => setIsModalOpen(true)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded cursor-pointer"
                 >
                     Crear Desarrollador
                 </Button>
 
                 <Button
                     onClick={() => navigate('/desarrolladores_desactivados')}
-                    className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
+                    className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded cursor-pointer"
                 >
                     Ver Desarrolladores Desactivados
                 </Button>
@@ -79,40 +130,68 @@ const Desarrolladores = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {data.map((dev) => (
-                            <tr key={dev.id} className="border-t hover:bg-gray-50 transition-all duration-300">
-                                <td className="px-6 py-4 text-sm text-gray-800">{dev.nombre}</td>
-                                <td className="px-6 py-4 text-sm text-gray-800">{dev.rut}</td>
-                                <td className="px-6 py-4 text-sm text-gray-800">{dev.correo}</td>
-                                <td className="px-6 py-4 text-sm text-gray-800">{dev.fechaContratacion}</td>
-                                <td className="px-6 py-4 text-sm text-gray-800">{dev.añosExperiencia}</td>
-                                <td className="px-6 py-4 text-sm text-gray-800">{dev.proyectosAsignados}</td>
-                                <td className="px-6 py-4 text-sm text-gray-800">{dev.estado}</td>
-                                <td className="px-6 py-4 text-sm text-gray-800">
-                                    <button className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm">
-                                        Ver detalles
-                                    </button>
-                                    <button className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm">
-                                        Editar
-                                    </button>
-                                    <button className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm">
-                                        Eliminar
-                                    </button>
-                                    <button className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm">
-                                        Desactivar
-                                    </button>
-                                    <button className="bg-indigo-500 text-white px-3 py-1 rounded hover:bg-indigo-600 text-sm">
-                                        Asignar a proyecto
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
+                        {desarrolladoresData
+                            .filter((dev: any) => dev.registroActivo) // Solo activos
+                            .map((dev: any) => (
+                                <tr key={dev.codigoDesarrollador} className="border-t hover:bg-gray-50 transition-all duration-300">
+                                    <td className="px-6 py-4 text-sm text-gray-800">{dev.nombre}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-800">{dev.rut}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-800">{dev.correoElectronico}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-800">
+                                        {new Date(dev.fechaContratacion).toLocaleDateString('es-CL')}
+                                    </td>
+                                    <td className="px-6 py-4 text-sm text-gray-800">{dev.aniosExperiencia}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-800">
+                                        {
+                                            proyectosData?.find(
+                                                (p: any) => p.codigoDesarrollador === dev.codigoDesarrollador
+                                            )?.cantidadProyectos ?? '0'
+                                        }
+                                    </td>
+                                    <td className="px-6 py-4 text-sm text-gray-800">
+                                        Activo
+                                    </td>
+                                    <td className="px-6 py-4 text-sm text-gray-800">
+                                        <button className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm mx-1 cursor-pointer">
+                                            Ver detalles
+                                        </button>
+                                        <button
+                                            className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm mx-1 cursor-pointer"
+                                            onClick={() => handleEdit(dev)} 
+                                        >
+                                            Editar
+                                        </button>
+                                        <button
+                                            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm mx-1 cursor-pointer"
+                                            onClick={() => eliminarDesarrollador(dev.codigoDesarrollador)}
+                                        >
+                                            Desactivar
+                                        </button>
+
+                                        <button
+                                            onClick={() => setModalAbierto(true)}
+                                            className="bg-indigo-500 text-white px-3 py-1 rounded hover:bg-indigo-600 text-sm mx-1 cursor-pointer">
+                                            Asignar a proyecto
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
                     </tbody>
+
                 </table>
             </div>
             <ModalCrearDesarrollador
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
+                onSubmit={handleSubmit}
+                developerData={selectedDesarrollador}
+                onResetDeveloperData={handleResetDeveloperData}
+
+            />
+            <ModalAsignarProyectos
+                isOpen={modalAbierto}
+                onClose={() => setModalAbierto(false)}
+                onSave={handleGuardarAsignaciones}
             />
         </div>
     );

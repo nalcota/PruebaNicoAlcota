@@ -11,7 +11,7 @@ type ModalProps = {
     return (
         <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="bg-white w-[600px] rounded-xl shadow-lg p-6">
-                <h2 className="text-xl font-semibold text-blue-600 mb-4 text-center">Crear Desarrollador</h2>
+                <h2 className="text-xl font-semibold text-blue-600 mb-4 text-center">Crear Proyecto</h2>
 
                 <form className="space-y-4">
                     <div>
