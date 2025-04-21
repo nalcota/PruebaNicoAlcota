@@ -14,9 +14,11 @@ type ModalProps = {
     onSubmit: (data: any) => void;
     proyectoInicial?: Proyecto | null;
     token: string;
+    onResetProyectoData: () => void;
+
 };
 
-const ModalCrearProyecto = ({ isOpen, onClose, onSubmit, proyectoInicial, token }: ModalProps) => {
+const ModalCrearProyecto = ({ isOpen, onClose, onSubmit, proyectoInicial, token, onResetProyectoData }: ModalProps) => {
 
     const [nombre, setNombre] = useState('');
     const [fechaInicio, setFechaInicio] = useState('');
@@ -43,6 +45,8 @@ const ModalCrearProyecto = ({ isOpen, onClose, onSubmit, proyectoInicial, token 
             fechaTermino: '',
         });
     };
+
+
 
     const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({
         nombre: '',
@@ -121,6 +125,7 @@ const ModalCrearProyecto = ({ isOpen, onClose, onSubmit, proyectoInicial, token 
                 );
                 Swal.fire('Éxito', 'Proyecto creado exitosamente.', 'success');
             }
+            onResetProyectoData();
 
             onSubmit(response.data);
             onClose();
@@ -131,8 +136,12 @@ const ModalCrearProyecto = ({ isOpen, onClose, onSubmit, proyectoInicial, token 
             setLoading(false);
         }
     };
-
-
+ 
+    const handleCancel = () => {
+        resetForm(); 
+        onResetProyectoData();
+        onClose();
+    };
     return (
         <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="bg-white w-[600px] rounded-xl shadow-lg p-6">
@@ -179,7 +188,7 @@ const ModalCrearProyecto = ({ isOpen, onClose, onSubmit, proyectoInicial, token 
                     <div className="flex justify-end space-x-3 mt-6">
                         <button
                             type="button"
-                            onClick={onClose}
+                            onClick={handleCancel}
                             className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded"
                         >
                             Cancelar

@@ -47,7 +47,10 @@ const Proyectos: React.FC<ProyectosProps> = ({ token }) => {
     setSeleccionados(newSet);
   };
 
-
+  const handleResetProyectoData = () => {
+    setProyectoEnEdicion(null);
+    setProyectoSeleccionado(null);
+};
   const handleGuardarAsignacion = () => {
     setIsModalAsignarOpen(false);
   };
@@ -230,7 +233,7 @@ const Proyectos: React.FC<ProyectosProps> = ({ token }) => {
                   <button
                     className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm cursor-pointer"
                     onClick={() => {
-                      setProyectoEnEdicion(proyecto); // Enviar datos al modal
+                      setProyectoEnEdicion(proyecto); 
                       setIsModalOpen(true);
                     }}
                   >
@@ -266,6 +269,8 @@ const Proyectos: React.FC<ProyectosProps> = ({ token }) => {
         onClose={() => setIsModalOpen(false)}
         proyectoInicial={proyectoEnEdicion}
         token={token}
+        onResetProyectoData={handleResetProyectoData}
+
       />
       <ModalAsignarDesarrolladores
         isOpen={isModalAsignarOpen}
