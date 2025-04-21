@@ -9,13 +9,13 @@ const Home = () => {
       <h1 className="text-3xl font-bold text-blue-600">Gestión de Desarrolladores y Proyectos</h1>
       <div className="flex gap-6">
         <Button
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 text-lg"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 text-lg cursor-pointer"
           onClick={() => navigate('/desarrolladores')}
         >
           Desarrolladores
         </Button>
         <Button
-          className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 text-lg"
+          className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 text-lg cursor-pointer"
           onClick={() => navigate('/proyectos')}
         >
           Proyectos
