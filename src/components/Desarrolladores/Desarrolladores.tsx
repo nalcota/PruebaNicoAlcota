@@ -1,47 +1,63 @@
 import { useEffect, useState } from 'react';
-import '../index.css';
+import '../../index.css';
 import ModalCrearDesarrollador from './ModalCrearDesarrollador';
 import { Button } from "@/components/ui/button"
 import { useNavigate } from 'react-router-dom';
-import { useDesarrolladoresQuery } from '../api/useDesarrolladoresQuery';
+import { useDesarrolladoresQuery } from '../../api/useDesarrolladoresQuery';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import ModalAsignarProyectos from './ModalAsignarProyectos';
-import { useProyectosPorDesarrolladorQuery } from '../api/useProyectosPorDesarrollador'; // Asegúrate de que la ruta sea la correcta
+import { useProyectosPorDesarrolladorCantidadQuery } from '../../api/useProyectosPorDesarrolladorCantidadQuery';
+import { useProyectosPorDesarrolladorQuery } from '../../api/useProyectosPorDesarrolladorQuery';
 import ModalVerDetallesDesarrollador from './ModalVerDetallesDesarrollador';
+import { format } from 'date-fns';
 
-
-const Desarrolladores = () => {
+interface DesarrolladoresProps {
+    token: string;
+}
+const Desarrolladores: React.FC<DesarrolladoresProps> = ({ token }) => {
 
     const navigate = useNavigate();
-    const { data: desarrolladoresData, isLoading: isLoadingDesarrolladores, error: errorDesarrolladores, refetch } = useDesarrolladoresQuery(); const [selectedDesarrollador, setSelectedDesarrollador] = useState<any>(null);
+    const { data: desarrolladoresData, isLoading: isLoadingDesarrolladores, error: errorDesarrolladores, refetch } = useDesarrolladoresQuery();
+    const { data: proyectosData, isLoading: _isLoadingProyectos, error: errorProyectos } = useProyectosPorDesarrolladorCantidadQuery();
+    const { data: proyectosData2, isLoading: _isLoadingProyectos2, error: errorProyectos2 } = useProyectosPorDesarrolladorQuery();
+    const [selectedDesarrollador, setSelectedDesarrollador] = useState<any>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalAbierto, setModalAbierto] = useState(false);
-    const { data: proyectosData, isLoading: isLoadingProyectos, error: errorProyectos } = useProyectosPorDesarrolladorQuery();
-    const [proyectosAsignados, setProyectosAsignados] = useState<number[]>([]);
-    const [isModalCrearOpen, setIsModalCrearOpen] = useState(false);
+    const [_proyectosAsignados, setProyectosAsignados] = useState<number[]>([]);
     const [isModalVerDetallesOpen, setIsModalVerDetallesOpen] = useState(false);
+    const [busqueda, setBusqueda] = useState('');
 
     const mostrarDetalles = (dev: any) => {
-        setSelectedDesarrollador(dev);  // Seteamos los datos del desarrollador seleccionado
-        setIsModalVerDetallesOpen(true); // Abrimos el modal de detalles
+        setSelectedDesarrollador(dev);
+        setIsModalVerDetallesOpen(true);
     };
 
-    if (errorDesarrolladores || errorProyectos) {
-        return <div>Error: {errorDesarrolladores?.message || errorProyectos?.message}</div>;
+    const handleSave = (proyectosSeleccionados: number[]) => {
+        setProyectosAsignados(proyectosSeleccionados);
+        refetch();
+        setModalAbierto(false);
+    };
+
+    if (errorDesarrolladores || errorProyectos || errorProyectos2) {
+        return <div>Error: {errorDesarrolladores?.message || errorProyectos?.message || errorProyectos2?.message}</div>;
     }
+
+    useEffect(() => {
+        if (proyectosData2) {
+            console.log('Proyectos por Desarrollador2:', proyectosData2);
+        }
+    }, [proyectosData2]);
+
     useEffect(() => {
         if (proyectosData) {
             console.log('Proyectos por desarrollador:', proyectosData);
         }
     }, [proyectosData]);
-    const handleGuardarAsignaciones = (idsSeleccionados: number[]) => {
-        setProyectosAsignados(idsSeleccionados);
-        console.log('Proyectos asignados:', idsSeleccionados);
-    };
+
 
     const handleResetDeveloperData = () => {
-        setSelectedDesarrollador(null); // Restablecer los datos cuando se cancele o se actualice
+        setSelectedDesarrollador(null);
     };
 
     if (isLoadingDesarrolladores) return <div className="text-center mt-10">Cargando...</div>;
@@ -53,15 +69,17 @@ const Desarrolladores = () => {
         refetch();
     };
 
+
+
     const eliminarDesarrollador = async (codigoDesarrollador: string) => {
         const resultado = await Swal.fire({
             title: '¿Estás seguro?',
-            text: 'Esta acción eliminará al desarrollador permanentemente.',
+            text: 'Esta acción desactivara al desarrollador.',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Sí, eliminar',
+            confirmButtonText: 'Sí, Desactivar',
             cancelButtonText: 'Cancelar',
         });
 
@@ -69,7 +87,7 @@ const Desarrolladores = () => {
             try {
                 await axios.delete(`https://apipruebas.rbu.cl/api/desarrolladores/${codigoDesarrollador}`, {
                     headers: {
-                        Authorization: `Bearer T7fZ9gHj5KmN2pQr8sV3uW6xY1zA4bC0dE7fG9hJ2kL4mN6pQ8rS0tV3wX5yZ7aC9`
+                        Authorization: `Bearer ${token}`, 
                     }
                 });
 
@@ -83,11 +101,11 @@ const Desarrolladores = () => {
                 refetch();
 
             } catch (error) {
-                console.error("Error al eliminar desarrollador:", error);
+                console.error("Error al desactivar desarrollador:", error);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Hubo un problema al eliminar el desarrollador.',
+                    text: 'Hubo un problema al desactivar el desarrollador.',
                 });
             }
         }
@@ -95,7 +113,7 @@ const Desarrolladores = () => {
 
     const handleEdit = (dev: any) => {
         setSelectedDesarrollador(dev);
-        setIsModalOpen(true); // Abrir el modal
+        setIsModalOpen(true);
     };
 
 
@@ -119,7 +137,15 @@ const Desarrolladores = () => {
                     Ver Desarrolladores Desactivados
                 </Button>
             </div>
-
+            <div className="mb-4 text-center">
+                <input
+                    type="text"
+                    placeholder="Buscar desarrollador..."
+                    value={busqueda}
+                    onChange={(e) => setBusqueda(e.target.value)}
+                    className="px-4 py-2 border border-gray-300 rounded shadow-sm w-1/2 focus:outline-none focus:ring focus:border-blue-300"
+                />
+            </div>
             <div className="overflow-x-auto rounded-lg shadow-lg">
                 <table className="min-w-full w-full border-collapse bg-white">
                     <thead className="bg-blue-600 text-white">
@@ -136,14 +162,21 @@ const Desarrolladores = () => {
                     </thead>
                     <tbody>
                         {desarrolladoresData
-                            .filter((dev: any) => dev.registroActivo) // Solo activos
+                            .filter((dev: any) =>
+                                dev.registroActivo &&
+                                (
+                                    dev.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+                                    dev.rut.toLowerCase().includes(busqueda.toLowerCase()) ||
+                                    dev.correoElectronico.toLowerCase().includes(busqueda.toLowerCase())
+                                )
+                            )
                             .map((dev: any) => (
                                 <tr key={dev.codigoDesarrollador} className="border-t hover:bg-gray-50 transition-all duration-300">
                                     <td className="px-6 py-4 text-sm text-gray-800">{dev.nombre}</td>
                                     <td className="px-6 py-4 text-sm text-gray-800">{dev.rut}</td>
                                     <td className="px-6 py-4 text-sm text-gray-800">{dev.correoElectronico}</td>
                                     <td className="px-6 py-4 text-sm text-gray-800">
-                                        {new Date(dev.fechaContratacion).toLocaleDateString('es-CL')}
+                                        {format(new Date(dev.fechaContratacion), 'dd/MM/yyyy')}
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-800">{dev.aniosExperiencia}</td>
                                     <td className="px-6 py-4 text-sm text-gray-800">
@@ -159,7 +192,7 @@ const Desarrolladores = () => {
                                     <td className="px-6 py-4 text-sm text-gray-800">
                                         <button
                                             className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm mx-1 cursor-pointer"
-                                            onClick={() => mostrarDetalles(dev)} // Usamos la nueva función
+                                            onClick={() => mostrarDetalles(dev)}
                                         >
                                             Ver detalles
                                         </button>
@@ -177,10 +210,19 @@ const Desarrolladores = () => {
                                         </button>
 
                                         <button
-                                            onClick={() => setModalAbierto(true)}
-                                            className="bg-indigo-500 text-white px-3 py-1 rounded hover:bg-indigo-600 text-sm mx-1 cursor-pointer">
+                                            onClick={() => {
+                                                setSelectedDesarrollador(dev);
+                                                const proyectosDev = proyectosData2?.filter(
+                                                    (p: any) => p.codigoDesarrollador === dev.codigoDesarrollador
+                                                ).map((p: any) => p.codigoProyecto) || [];
+                                                setProyectosAsignados(proyectosDev);
+                                                setModalAbierto(true);
+                                            }}
+                                            className="bg-indigo-500 text-white px-3 py-1 rounded hover:bg-indigo-600 text-sm mx-1 cursor-pointer"
+                                        >
                                             Asignar a proyecto
                                         </button>
+
                                     </td>
                                 </tr>
                             ))}
@@ -194,17 +236,23 @@ const Desarrolladores = () => {
                 onSubmit={handleSubmit}
                 developerData={selectedDesarrollador}
                 onResetDeveloperData={handleResetDeveloperData}
+                token={token}
 
             />
             <ModalAsignarProyectos
                 isOpen={modalAbierto}
                 onClose={() => setModalAbierto(false)}
-                onSave={handleGuardarAsignaciones}
-            />
-            <ModalVerDetallesDesarrollador
-                isOpen={isModalVerDetallesOpen}  
-                onClose={() => setIsModalVerDetallesOpen(false)}  
+                onSave={handleSave}
                 developerData={selectedDesarrollador}
+                token={token}
+            />
+
+            <ModalVerDetallesDesarrollador
+                isOpen={isModalVerDetallesOpen}
+                onClose={() => setIsModalVerDetallesOpen(false)}
+                developerData={selectedDesarrollador}
+                token={token}
+
             />
         </div>
     );

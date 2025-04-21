@@ -1,16 +1,20 @@
 import { create } from 'zustand';
 
 interface Proyecto {
-  codigoDesarrollador: string;
-  cantidadProyectos: number;
+  codigoProyecto: number;
+  nombre: string;
+  fechaInicio: string;
+  fechaTermino: string;
+  registroActivo: boolean;
+
 }
 
-interface ProyectosState {
+interface ProyectosPorDesarrolladorState {
   proyectos: Proyecto[];
-  setProyectos: (data: Proyecto[]) => void;
+  setProyectos: (proyectos: Proyecto[]) => void;
 }
 
-export const useProyectosPorDesarrolladorStore = create<ProyectosState>((set) => ({
-  proyectos: [],  
-  setProyectos: (data) => set({ proyectos: data }),  
+export const useProyectosPorDesarrolladorStore = create<ProyectosPorDesarrolladorState>((set) => ({
+  proyectos: [],
+  setProyectos: (proyectos) => set({ proyectos }),
 }));

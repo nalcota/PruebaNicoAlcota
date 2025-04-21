@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { AnyARecord } from 'dns';
 
 type ModalProps = {
     isOpen: boolean;
@@ -9,16 +8,16 @@ type ModalProps = {
     onSubmit: (data: any) => void;
     developerData: any;
     onResetDeveloperData: () => void;
-
+    token: string;
 };
 
 
 const formatDate = (isoString: string) => {
     const date = new Date(isoString);
-    return date.toISOString().split('T')[0]; // "2025-04-12"
+    return date.toISOString().split('T')[0]; 
 };
 
-const ModalCrearDesarrollador = ({ isOpen, onClose, onSubmit, developerData, onResetDeveloperData }: ModalProps) => {
+const ModalCrearDesarrollador = ({ isOpen, onClose, onSubmit, developerData, onResetDeveloperData, token }: ModalProps) => {
     if (!isOpen) return null;
 
     const initialFormData = {
@@ -27,7 +26,6 @@ const ModalCrearDesarrollador = ({ isOpen, onClose, onSubmit, developerData, onR
         correoElectronico: '',
         fechaContratacion: '',
         aniosExperiencia: 0,
-        estado: 'Activo'
     };
     const [formData, setFormData] = useState({
         nombre: developerData?.nombre || '',
@@ -35,7 +33,6 @@ const ModalCrearDesarrollador = ({ isOpen, onClose, onSubmit, developerData, onR
         correoElectronico: developerData?.correoElectronico || '',
         fechaContratacion: developerData?.fechaContratacion || '',
         aniosExperiencia: developerData?.aniosExperiencia || 0,
-        estado: developerData?.estado || 'Activo'
     });
     const [formErrors, setFormErrors] = useState({
         nombre: '',
@@ -47,29 +44,29 @@ const ModalCrearDesarrollador = ({ isOpen, onClose, onSubmit, developerData, onR
 
     useEffect(() => {
         if (developerData) {
-            // Si hay datos de un desarrollador, actualiza el formulario
             setFormData({
                 nombre: developerData.nombre,
                 rut: developerData.rut,
                 correoElectronico: developerData.correoElectronico,
                 fechaContratacion: formatDate(developerData.fechaContratacion),
                 aniosExperiencia: developerData.aniosExperiencia,
-                estado: developerData.estado
             });
         } else {
             setFormData(initialFormData);
         }
     }, [developerData]);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prevState => ({
             ...prevState,
-            [name]: value
+            [name]: name === 'aniosExperiencia' ? Number(value) : value
         }));
     };
+
     const handleCancel = () => {
         onResetDeveloperData();
-        onClose(); // Cerrar el modal
+        onClose(); 
     };
 
     //funcion para ingresar solo numeros
@@ -78,14 +75,13 @@ const ModalCrearDesarrollador = ({ isOpen, onClose, onSubmit, developerData, onR
         if (/^\d*$/.test(value)) {
             setFormData(prevState => ({
                 ...prevState,
-                aniosExperiencia: value
+                aniosExperiencia: Number(value) 
             }));
             setFormErrors(prevState => ({
                 ...prevState,
                 aniosExperiencia: ''
             }));
         } else {
-            // Si el valor no es un número, puedes mostrar un mensaje de error
             setFormErrors(prevState => ({
                 ...prevState,
                 aniosExperiencia: 'Por favor, ingrese un número válido.'
@@ -94,10 +90,10 @@ const ModalCrearDesarrollador = ({ isOpen, onClose, onSubmit, developerData, onR
     };
 
 
+
     const validateForm = (): boolean => {
         let errors = { ...formErrors };
 
-        // Validar campos obligatorios
         if (!formData.nombre) errors.nombre = 'Este campo es obligatorio';
         else errors.nombre = '';
 
@@ -115,7 +111,6 @@ const ModalCrearDesarrollador = ({ isOpen, onClose, onSubmit, developerData, onR
 
         setFormErrors(errors);
 
-        // Si hay errores, retornar false
         return Object.values(errors).every(error => error === '');
     };
     const fechaFormateada = formData.fechaContratacion
@@ -127,20 +122,26 @@ const ModalCrearDesarrollador = ({ isOpen, onClose, onSubmit, developerData, onR
 
         if (!validateForm()) return;
 
-        const token = 'T7fZ9gHj5KmN2pQr8sV3uW6xY1zA4bC0dE7fG9hJ2kL4mN6pQ8rS0tV3wX5yZ7aC9'; // Bearer Token
         const url = developerData
             ? `https://apipruebas.rbu.cl/api/desarrolladores/${developerData.codigoDesarrollador}`
             : 'https://apipruebas.rbu.cl/api/desarrolladores';
 
+        const fechaISO = new Date(formData.fechaContratacion).toISOString().split('.')[0];
+
+        const dataToSend = {
+            ...formData,
+            fechaContratacion: fechaISO
+        };
+
         try {
             const response = developerData
-                ? await axios.put(url, formData, {
+                ? await axios.put(url, dataToSend, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     }
                 })
-                : await axios.post(url, formData, {
+                : await axios.post(url, dataToSend, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
@@ -154,8 +155,8 @@ const ModalCrearDesarrollador = ({ isOpen, onClose, onSubmit, developerData, onR
                 confirmButtonText: 'Aceptar'
             });
 
-            onSubmit(response.data); // Llamar a la función onSubmit para manejar el resultado
-            onClose(); // Cerrar el modal después de enviar
+            onSubmit(response.data);
+            onClose();
             onResetDeveloperData();
         } catch (error) {
             console.error('Error al guardar el desarrollador:', error);
@@ -167,6 +168,7 @@ const ModalCrearDesarrollador = ({ isOpen, onClose, onSubmit, developerData, onR
             });
         }
     };
+
 
     return (
         <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
@@ -195,8 +197,10 @@ const ModalCrearDesarrollador = ({ isOpen, onClose, onSubmit, developerData, onR
                             value={formData.rut}
                             onChange={handleChange}
                             className="w-full border rounded px-3 py-2 mt-1"
+                            maxLength={10} 
                         />
                         {formErrors.rut && <p className="text-red-500 text-sm mt-1">{formErrors.rut}</p>}
+                        <p className="text-sm text-gray-500 mt-1">El formato de RUT es 99999999-9</p> 
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Correo electrónico</label>
@@ -226,7 +230,7 @@ const ModalCrearDesarrollador = ({ isOpen, onClose, onSubmit, developerData, onR
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Años de experiencia</label>
                         <input
-                            type="text"
+                            type="number"
                             name="aniosExperiencia"
                             value={formData.aniosExperiencia}
                             onChange={handleNumberChange}
@@ -234,18 +238,7 @@ const ModalCrearDesarrollador = ({ isOpen, onClose, onSubmit, developerData, onR
                         />
                         {formErrors.aniosExperiencia && <p className="text-red-500 text-sm mt-1">{formErrors.aniosExperiencia}</p>}
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Estado</label>
-                        <select
-                            name="estado"
-                            value={formData.estado}
-                            onChange={handleChange}
-                            className="w-full border rounded px-3 py-2 mt-1"
-                        >
-                            <option value="Activo">Activo</option>
-                            <option value="Inactivo">Inactivo</option>
-                        </select>
-                    </div>
+
 
                     <div className="flex justify-end space-x-3 mt-6">
                         <button

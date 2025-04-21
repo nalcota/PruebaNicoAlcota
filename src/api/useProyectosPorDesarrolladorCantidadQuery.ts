@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { useProyectosPorDesarrolladorStore } from '../store/useProyectosPorDesarrolladorStore';
+import { useProyectosPorDesarrolladorCantidadStore } from '../store/useProyectosPorDesarrolladorCantidadStore';
 
 const API_URL = 'https://apipruebas.rbu.cl/api/desarrolladores';
 const TOKEN = 'T7fZ9gHj5KmN2pQr8sV3uW6xY1zA4bC0dE7fG9hJ2kL4mN6pQ8rS0tV3wX5yZ7aC9';
 
-export const useProyectosPorDesarrolladorQuery = () => {
-  const setProyectos = useProyectosPorDesarrolladorStore((state) => state.setProyectos);
+export const useProyectosPorDesarrolladorCantidadQuery = () => {
+  const setProyectos = useProyectosPorDesarrolladorCantidadStore((state) => state.setProyectos);
 
   return useQuery({
     queryKey: ['proyectosPorDesarrollador'],

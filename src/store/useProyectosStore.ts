@@ -1,4 +1,3 @@
-// src/store/useProyectosStore.ts
 import { create } from 'zustand';
 
 interface Proyecto {
