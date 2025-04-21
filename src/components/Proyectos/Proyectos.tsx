@@ -50,7 +50,7 @@ const Proyectos: React.FC<ProyectosProps> = ({ token }) => {
   const handleResetProyectoData = () => {
     setProyectoEnEdicion(null);
     setProyectoSeleccionado(null);
-};
+  };
   const handleGuardarAsignacion = () => {
     setIsModalAsignarOpen(false);
   };
@@ -88,7 +88,7 @@ const Proyectos: React.FC<ProyectosProps> = ({ token }) => {
       try {
         await axios.delete(`https://apipruebas.rbu.cl/api/proyectos/${codigoProyecto}`, {
           headers: {
-            Authorization: `Bearer ${token}`, 
+            Authorization: `Bearer ${token}`,
           }
         });
 
@@ -140,26 +140,23 @@ const Proyectos: React.FC<ProyectosProps> = ({ token }) => {
 
       </div>
 
-      <div className="mb-4 flex gap-4">
+      <div className="mb-4 flex flex-col md:flex-row gap-4">
         <input
           type="text"
           placeholder="Buscar proyecto..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded shadow-sm w-1/2 focus:outline-none focus:ring focus:border-blue-300"
-          />
+          className="px-4 py-2 border border-gray-300 rounded shadow-sm w-full md:w-1/2 focus:outline-none focus:ring focus:border-blue-300"
+        />
 
-        <div className="flex gap-2 items-end ml-[450px]">
+        <div className="flex flex-col sm:flex-row gap-2 sm:ml-auto">
           <div>
             <label className="block text-xs font-medium text-gray-700">Fecha Inicio</label>
             <input
               type="date"
               value={format(fechaInicioFiltro, 'yyyy-MM-dd')}
-              onChange={(e) => {
-                const parsed = parse(e.target.value, 'yyyy-MM-dd', new Date());
-                setFechaInicioFiltro(parsed);
-              }}
-              className="px-4 py-2 border border-gray-300 rounded text-sm w-[180px]"
+              onChange={(e) => setFechaInicioFiltro(parse(e.target.value, 'yyyy-MM-dd', new Date()))}
+              className="px-4 py-2 border border-gray-300 rounded text-sm w-full sm:w-[180px]"
               onKeyDown={(e) => e.preventDefault()}
             />
           </div>
@@ -168,16 +165,14 @@ const Proyectos: React.FC<ProyectosProps> = ({ token }) => {
             <input
               type="date"
               value={format(fechaTerminoFiltro, 'yyyy-MM-dd')}
-              onChange={(e) => {
-                const parsed = parse(e.target.value, 'yyyy-MM-dd', new Date());
-                setFechaTerminoFiltro(parsed);
-              }}
-              className="px-4 py-2 border border-gray-300 rounded text-sm w-[180px]"
+              onChange={(e) => setFechaTerminoFiltro(parse(e.target.value, 'yyyy-MM-dd', new Date()))}
+              className="px-4 py-2 border border-gray-300 rounded text-sm w-full sm:w-[180px]"
               onKeyDown={(e) => e.preventDefault()}
             />
           </div>
         </div>
       </div>
+
 
 
 
@@ -233,7 +228,7 @@ const Proyectos: React.FC<ProyectosProps> = ({ token }) => {
                   <button
                     className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm cursor-pointer"
                     onClick={() => {
-                      setProyectoEnEdicion(proyecto); 
+                      setProyectoEnEdicion(proyecto);
                       setIsModalOpen(true);
                     }}
                   >
