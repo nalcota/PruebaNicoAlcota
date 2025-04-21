@@ -60,7 +60,6 @@ const ModalVerDetallesProyecto: React.FC<ModalVerDetallesProyectoProps> = ({ isO
                             <p><strong>Estado:</strong> {proyectoData.registroActivo ? 'Activo' : 'Inactivo'}</p>
                         </div>
 
-                        {/* Lista de desarrolladores */}
                         <div className="mt-4">
                             <h4 className="text-xl font-semibold text-gray-700">Desarrolladores:</h4>
                             {loading ? (

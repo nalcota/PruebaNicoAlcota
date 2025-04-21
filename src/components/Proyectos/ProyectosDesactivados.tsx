@@ -59,7 +59,7 @@ interface ProyectosDesactivadosProps {
                     confirmButtonColor: '#3085d6',
                 });
 
-                window.location.reload(); // O refetch si usas React Query
+                window.location.reload(); 
             } catch (error) {
                 console.error('Error al reactivar el proyecto:', error);
                 Swal.fire({
