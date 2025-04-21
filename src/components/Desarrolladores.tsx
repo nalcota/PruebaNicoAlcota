@@ -7,8 +7,8 @@ import { useDesarrolladoresQuery } from '../api/useDesarrolladoresQuery';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import ModalAsignarProyectos from './ModalAsignarProyectos';
-import { useProyectosPorDesarrolladorStore } from '@/store/useProyectosPorDesarrolladorStore';
 import { useProyectosPorDesarrolladorQuery } from '../api/useProyectosPorDesarrollador'; // Asegúrate de que la ruta sea la correcta
+import ModalVerDetallesDesarrollador from './ModalVerDetallesDesarrollador';
 
 
 const Desarrolladores = () => {
@@ -19,8 +19,13 @@ const Desarrolladores = () => {
     const [modalAbierto, setModalAbierto] = useState(false);
     const { data: proyectosData, isLoading: isLoadingProyectos, error: errorProyectos } = useProyectosPorDesarrolladorQuery();
     const [proyectosAsignados, setProyectosAsignados] = useState<number[]>([]);
+    const [isModalCrearOpen, setIsModalCrearOpen] = useState(false);
+    const [isModalVerDetallesOpen, setIsModalVerDetallesOpen] = useState(false);
 
-
+    const mostrarDetalles = (dev: any) => {
+        setSelectedDesarrollador(dev);  // Seteamos los datos del desarrollador seleccionado
+        setIsModalVerDetallesOpen(true); // Abrimos el modal de detalles
+    };
 
     if (errorDesarrolladores || errorProyectos) {
         return <div>Error: {errorDesarrolladores?.message || errorProyectos?.message}</div>;
@@ -89,7 +94,7 @@ const Desarrolladores = () => {
     };
 
     const handleEdit = (dev: any) => {
-        setSelectedDesarrollador(dev); 
+        setSelectedDesarrollador(dev);
         setIsModalOpen(true); // Abrir el modal
     };
 
@@ -152,12 +157,15 @@ const Desarrolladores = () => {
                                         Activo
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-800">
-                                        <button className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm mx-1 cursor-pointer">
+                                        <button
+                                            className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm mx-1 cursor-pointer"
+                                            onClick={() => mostrarDetalles(dev)} // Usamos la nueva función
+                                        >
                                             Ver detalles
                                         </button>
                                         <button
                                             className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm mx-1 cursor-pointer"
-                                            onClick={() => handleEdit(dev)} 
+                                            onClick={() => handleEdit(dev)}
                                         >
                                             Editar
                                         </button>
@@ -192,6 +200,11 @@ const Desarrolladores = () => {
                 isOpen={modalAbierto}
                 onClose={() => setModalAbierto(false)}
                 onSave={handleGuardarAsignaciones}
+            />
+            <ModalVerDetallesDesarrollador
+                isOpen={isModalVerDetallesOpen}  
+                onClose={() => setIsModalVerDetallesOpen(false)}  
+                developerData={selectedDesarrollador}
             />
         </div>
     );

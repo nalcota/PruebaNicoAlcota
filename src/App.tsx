@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Desarrolladores from './components/Desarrolladores';
 import Proyectos from './components/Proyectos';
 import DesarrolladoresDesactivados from './components/DesarrolladoresDesactivados';
+import ProyectosDesactivados from './components/ProyectosDesactivados';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -17,6 +18,7 @@ function App() {
       <Route path="/desarrolladores_desactivados" element={<DesarrolladoresDesactivados />} />
 
       <Route path="/proyectos" element={<Proyectos />} />
+      <Route path="/proyectos_desactivados" element={<ProyectosDesactivados />} />
 
 
 

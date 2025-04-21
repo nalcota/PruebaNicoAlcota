@@ -124,11 +124,7 @@ const DesarrolladoresDesactivados = () => {
 
                 </table>
             </div>
-            <ModalCrearDesarrollador
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onSubmit={handleSubmit}
-            />
+     
         </div>
     );
 };

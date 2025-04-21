@@ -1,4 +1,3 @@
-// src/components/Proyectos.tsx
 import { useState } from 'react';
 import '../index.css';
 import ModalCrearProyecto from './ModalCrearProyectos';
@@ -68,7 +67,7 @@ const Proyectos = () => {
                     Editar
                   </button>
                   <button className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm">
-                    Eliminar
+                    Desactivar
                   </button>
                   <button className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm">
                     Reactivar

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { AnyARecord } from 'dns';
 
 type ModalProps = {
     isOpen: boolean;
@@ -9,6 +10,12 @@ type ModalProps = {
     developerData: any;
     onResetDeveloperData: () => void;
 
+};
+
+
+const formatDate = (isoString: string) => {
+    const date = new Date(isoString);
+    return date.toISOString().split('T')[0]; // "2025-04-12"
 };
 
 const ModalCrearDesarrollador = ({ isOpen, onClose, onSubmit, developerData, onResetDeveloperData }: ModalProps) => {
@@ -45,7 +52,7 @@ const ModalCrearDesarrollador = ({ isOpen, onClose, onSubmit, developerData, onR
                 nombre: developerData.nombre,
                 rut: developerData.rut,
                 correoElectronico: developerData.correoElectronico,
-                fechaContratacion: developerData.fechaContratacion,
+                fechaContratacion: formatDate(developerData.fechaContratacion),
                 aniosExperiencia: developerData.aniosExperiencia,
                 estado: developerData.estado
             });
@@ -111,6 +118,9 @@ const ModalCrearDesarrollador = ({ isOpen, onClose, onSubmit, developerData, onR
         // Si hay errores, retornar false
         return Object.values(errors).every(error => error === '');
     };
+    const fechaFormateada = formData.fechaContratacion
+        ? new Date(formData.fechaContratacion).toISOString().split('T')[0]
+        : '';
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -204,16 +214,19 @@ const ModalCrearDesarrollador = ({ isOpen, onClose, onSubmit, developerData, onR
                         <input
                             type="date"
                             name="fechaContratacion"
-                            value={formData.fechaContratacion}
+                            value={fechaFormateada}
                             onChange={handleChange}
                             className="w-full border rounded px-3 py-2 mt-1"
                         />
+
+
+
                         {formErrors.fechaContratacion && <p className="text-red-500 text-sm mt-1">{formErrors.fechaContratacion}</p>}
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Años de experiencia</label>
                         <input
-                            type="text" 
+                            type="text"
                             name="aniosExperiencia"
                             value={formData.aniosExperiencia}
                             onChange={handleNumberChange}
